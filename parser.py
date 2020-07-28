@@ -13,7 +13,7 @@ cell_name = "GM001.impute.con.gz"
 con = pd.read_table(cell_name,header=None,sep='[,\t]')
 cell = list(zip(con[0],con[1],con[4]))
 '''
-
+# bed file parser
 def bed_parser(bed_name, chr_names=[]):
     # dict of chromsomes, for each entry: list of 
     # two level index: chromsome, left end
@@ -31,7 +31,15 @@ def bed_parser(bed_name, chr_names=[]):
         #bed.loc[chr_name]: choose all rows of chr_name, .index is left leg since level 1(chromsome_name) has been used.
         chromsomes[chr_name] = list(zip(bed.loc[chr_name].index ,bed.loc[chr_name][2], bed.loc[chr_name][3]))
     return chromsomes, bed
-
+# .contact parser
+def con_parser(cell_name):
+    #list of entries: chromsome, leg1, leg2
+    time_begin = time.time()
+    con = pd.read_table(cell_name,header=None,sep='[,\t]')
+    cell = list(zip(con[0],con[1],con[4]))
+    #check parsing time
+    #print("parsing cell:", time.time() - time_begin)
+    return cell
 if __name__ == "main":
     #bed_name = "/share/Data/ychi/genome/hg38_RefSeq.bed"
     bed_name = "hg38_RefSeq.bed"
