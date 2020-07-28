@@ -1,0 +1,9 @@
+#python
+__pycache__
+#lab data
+raw/
+ref/
+out/
+#eclipse
+.project
+.pydevproject
