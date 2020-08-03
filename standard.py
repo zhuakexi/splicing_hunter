@@ -4,25 +4,19 @@ import time
 import sys
 import pandas as pd
 import numpy as np
-def in_exon(locus:int):
-    def working_func(exon:tuple):
-        return exon[0] <= locus <= exon[1]
-    return working_func 
-def filt_in_exon(locus:int, exons:list) -> list:
-    return list(filter(in_exon(locus), exons))
-#bed parser
-from parser import bed_parser
-#con parser
-from parser import con_parser
-#search exons from gene name
+
+def filt_in_exon(locus, exons):
+    '''
+    get list of exons envelope locus
+    '''
+    return [exon for exon in exons if exon[0] <= locus <= exon[1]]
 def back_search(gene_name, df):
+    '''
+    search exons from gene name
+    '''
     #get target records
     short_df = df[df[3]==gene_name]
-    #df to tuple list
-    #left = short_df.index.get_level_values(1)
-    left = short_df[1]
-    right = short_df[2]
-    names = short_df[3]
+    left, right, names = short_df[1], short_df[2], short_df[3]
     return list(zip(left,right,names)) 
 
 #--------calculate hit--------
@@ -32,8 +26,7 @@ def filter_search(cell, chromsomes, ref_df):
     records = []
     left_hit = [] # to test filter method
     for i in cell:
-        chrom_name, locus1, locus2 = i[0], i[1], i[2]
-        #locus1_in = list(filter(in_exon(locus1),chromsomes[chrom_name])) 
+        chrom_name, locus1, locus2 = i[0], i[1], i[2] 
         locus1_in = filt_in_exon(locus1, chromsomes[chrom_name])
         if locus1_in != []:
             #print("left :",locus1_in)
@@ -42,22 +35,15 @@ def filter_search(cell, chromsomes, ref_df):
             #print("gene names:", gene_names)
             for j in gene_names:
                 j_exons = back_search(j, ref_df)
-                hit_right = list(filter(in_exon(locus2),j_exons))
+                hit_right = filt_in_exon(locus2, j_exons)
                 if hit_right != []:
-                    hit_left = list(filter(in_exon(locus1),j_exons))
+                    hit_left = filt_in_exon(locus1, j_exons)
                     hit_contact = str((chrom_name, locus1, locus2))
                     hit_text = ":".join(map(str, (hit_left, hit_right) ))
                     record = "----->".join( (hit_contact, hit_text) )
-                    #print(record)
                     result.append(hit_contact)
                     records.append(record)
     print("Filter_search left hit",len(left_hit)) # to test filter method
     sys.stderr.write( "Filter_search hit: " + str( len(set(result)) ) + "\n"  )
     sys.stderr.write( "Filter_search time: " + str(time.time() - time_begin) +"\n" )
-    '''
-    with open(out_name,"w") as f:
-        title = cell_name + " in " + bed_name
-        content = "\n".join(results)
-        f.write(title+"\n"+content)
-    '''
 

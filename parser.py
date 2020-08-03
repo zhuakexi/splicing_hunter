@@ -3,7 +3,9 @@ import pandas as pd
 import time
 import sys
 # .bed parser
-def bed_parser(bed_name):
+regular_chromsome_names = ["chr" + str(i) for i in range(1,23)]
+regular_chromsome_names.extend(["chrX","chrY"])
+def bed_parser(bed_name, regular="off"):
     # dict of chromsomes, for each entry: list of
     # ok with .gz thanks for pandas 
     begin = time.time()
@@ -14,7 +16,10 @@ def bed_parser(bed_name):
     #pandas group dataframe by chr name
     grouped = bed.groupby(0)
     #chr name is the key; value format: (exon_start, exon_end, gene_id)
-    chromsomes = {name:list(zip(value[1], value[2], value[3])) for name, value in grouped }
+    if regular == "on":
+        chromsomes = {name:list(zip(value[1], value[2], value[3])) for name, value in grouped if name in regular_chromsome_names}
+    else:
+        chromsomes = {name:list(zip(value[1], value[2], value[3])) for name, value in grouped }
     sys.stderr.write("bed_parser parsing time: " + str(time.time()-begin) + "\n")
     return chromsomes, bed
 # .contact parser
@@ -28,6 +33,13 @@ def con_parser(cell_name,*sample_function):
     #check parsing time
     sys.stderr.write("con_parser parsing time: " + str(time.time() - time_begin) + "\n")
     return cell
+def bin_parser(file_name, regular="off"):
+    time_begin = time.time()
+    bins = pd.read_table(file_name, header=None)
+    print("bin_parser parsing time: " + str(time.time() - time_begin) + "\n")
+    if regular == "on":
+        return [bin for bin in bins.values if bin[0] in regular_chromsome_names]
+    return bins.values
 if __name__ == "main":
     #bed_name = "/share/Data/ychi/genome/hg38_RefSeq.bed"
     bed_name = "hg38_RefSeq.bed"

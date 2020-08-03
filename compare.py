@@ -1,4 +1,4 @@
-from mid_search import mid_search
+#from mid_search import mid_search
 from standard import filter_search
 from parser import con_parser
 from parser import bed_parser
@@ -24,7 +24,7 @@ for i in chromsomes:
     keys_of_all[i] = [ (int(exon[0]) + int(exon[1]))/2 for exon in chromsomes[i]]
 # ------------do two search------------
 
-result_mid = mid_search(cell, keys_of_all, chromsomes)
+#result_mid = mid_search(cell, keys_of_all, chromsomes)
 result_filt = filter_search(cell, chromsomes, ref_df)
 
 # ------------test filter and two_way_search-----------
