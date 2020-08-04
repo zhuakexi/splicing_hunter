@@ -24,7 +24,7 @@ def set_list_value(target, index, value):
     except IndexError:
         target.extend( ([] for i in range(index-len(target)+1)) )
         target[-1] = value
-def build_index(bins:list, bin_size:int, chromsomes:"dict; list of exons by chromsome") -> "list of exon list by bin by chromsome":
+def build_index(bins:list, bin_size:int, chromsomes:"dict; list of exons by chromsome") -> "list of exon list by bin by chromsome in dict":
     '''
     build binning index from bins and reference
     '''
@@ -51,6 +51,17 @@ def build_index(bins:list, bin_size:int, chromsomes:"dict; list of exons by chro
         #print(bin_index)
     sys.stderr.write("build_index building time: " + str(time.time()-begin_time) + "\n")
     return bin_index
+def build_chromsome_index(chr_name, p_bins:"list of bins of one chromsome", bin_size:int, chromsome:"list of exons of one chromsome") ->"exon list":
+    t0 = time.time()
+    p_bin_index = [[] for bin in p_bins] #initiate list of blank list same length as p_bins
+    if bin_size != (p_bins[0][2] - p_bins[0][1]):
+        sys.stderr.write("buil_index: Warning. Wrong bin_size.\n")
+    for bin in p_bins:
+        related = filt_relate_exon(p_bins, chromsome)
+        the_index = bin_to_index(bin, bin_size)
+        p_bin_index[the_index] = related
+    sys.stderr.write("build_chromsome_index: build %s in %s \n" %( chr_name, str(time.time()-begin_time)) )
+    return (chr_name, p_bin_index)
 def key_to_index(locus, bin_size):
     return locus//bin_size
 def bin_to_index(bin, bin_size):
