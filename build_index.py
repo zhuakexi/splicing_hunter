@@ -1,15 +1,25 @@
 import sys
 import pickle
+import random
+
 from parser import bed_parser, bin_parser, con_parser
 from block_search import build_index, block_search
-import random
+
+BINSIZE = 10000
 ref_name = sys.argv[1]
 bin_name = sys.argv[2]
-cell_name = sys.argv[3]
+sample_rate = int(sys.argv[3])
+try:
+    index_file_name = sys.argv[4]
+except IndexError:
+    index_file_name = "ref/bin_10k_d{}_index".format(sample_rate)
 chromsomes, ref_df = bed_parser(ref_name,"on")
-cell = con_parser(cell_name)
 bins = bin_parser(bin_name,"on")
-bin_index = build_index(bins, 10000, chromsomes)
-with open("ref/bin_10k_index","wb") as f:
+
+#build 1/x index
+## sample different num according to exon number
+sample1 = {name:random.sample(chromsomes[name],len(chromsomes[name])//sample_rate) for name in chromsomes}
+bin_index = build_index(bins, BINSIZE, sample1)
+with open(index_file_name,"wb") as f:
     pickle.dump(bin_index,f)
 
