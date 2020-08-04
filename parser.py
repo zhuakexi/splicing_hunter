@@ -34,12 +34,18 @@ def con_parser(cell_name,*sample_function):
     sys.stderr.write("con_parser parsing time: " + str(time.time() - time_begin) + "\n")
     return cell
 def bin_parser(file_name, regular="off"):
+    '''
+    read bin.bed file
+    return dictionary of bins by chromsome
+    '''
     time_begin = time.time()
     bins = pd.read_table(file_name, header=None)
     print("bin_parser parsing time: " + str(time.time() - time_begin) + "\n")
+    grouped = bins.groupby(0) #group by chromsome names
     if regular == "on":
-        return [bin for bin in bins.values if bin[0] in regular_chromsome_names]
-    return bins.values
+        return {key:value.values for key,value in grouped if key in regular_chromsome_names}
+        #return [bin for bin in bins.values if bin[0] in regular_chromsome_names]
+    return {key:value.values for key,value in grouped}
 if __name__ == "main":
     #bed_name = "/share/Data/ychi/genome/hg38_RefSeq.bed"
     bed_name = "hg38_RefSeq.bed"
