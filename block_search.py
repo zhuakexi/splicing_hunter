@@ -24,31 +24,35 @@ def set_list_value(target, index, value):
     except IndexError:
         target.extend( ([] for i in range(index-len(target)+1)) )
         target[-1] = value
-def build_index(bins:list, bin_size:int, chromsomes:"dict; list of exons by chromsome") -> "list of exon list by bin by chromsome in dict":
+def build_index(bins:"dict of bins", bin_size:int, chromsomes:"dict; list of exons by chromsome") -> "list of exon list by bin by chromsome in dict":
     '''
     build binning index from bins and reference
     '''
     begin_time = time.time()
+    '''
     if bin_size != (bins[0][2] - bins[0][1]):
         sys.stderr.write("buil_index: Warning. Wrong bin_size.\n")
+    '''
     bin_index = {}
+    '''
     chromsome_names = set()
     for bin in bins:
         chromsome_names.add(bin[0])
+    '''
     #print("bin chromsome numbers: ", len(chromsome_names))
+    '''
     for name in chromsome_names:
         bin_index[name] = [[] for bin in bins if bin[0] == name]
+    '''
     #print(bin_index)
-    for bin in bins:
-        chr_name = bin[0]
-        exons = chromsomes[chr_name]
-        #print(bin)
-        related = filt_relate_exon(bin, exons)
-        the_index = bin_to_index(bin, bin_size)
-        #set_list_value(bin_index[chr][the_index],related)
-        #print(the_index)
-        bin_index[chr_name][the_index] = related
-        #print(bin_index)
+    for chr_name, p_bins in bins.items():
+        bin_index[chr_name] = [[] for bin in p_bins] #initiate bin_index with list of blank list
+        for bin in p_bins:
+            #print(bin)
+            exons = chromsomes[chr_name]
+            related = filt_relate_exon(bin, exons)
+            the_index = bin_to_index(bin, bin_size)
+            bin_index[chr_name][the_index] = related
     sys.stderr.write("build_index building time: " + str(time.time()-begin_time) + "\n")
     return bin_index
 def build_chromsome_index(chr_name, p_bins:"list of bins of one chromsome", bin_size:int, chromsome:"list of exons of one chromsome") ->"exon list":
