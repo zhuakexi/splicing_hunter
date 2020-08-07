@@ -38,6 +38,8 @@ sys.stderr.write("multi_build_index: finish in %s \n" % str(time.time()-t0))
 with open(index_file_name,"wb") as f:
     pickle.dump(bin_index,f)
 '''
+
+#build full index
 t0 = time.time()
 input = [(chr_name, bins[chr_name], BINSIZE, chromsomes[chr_name]) for chr_name in bins]
 with futures.ProcessPoolExecutor() as executor:
