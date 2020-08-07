@@ -74,16 +74,18 @@ def block_search(bin_index, binsize, cell):
     begin_time = time.time()
     result = []
     for contact in cell:
+        chr_name_1, leg_1_pos, chr_name_2, leg_2_pos = contact[0], contact[1], contact[2], contact[3]
+        if chr_name_1 != chr_name_2:
+            continue
         #search left
-        chr_name, left_index, right_index = contact[0], key_to_index(contact[1], binsize), key_to_index(contact[2], binsize)
-        left_hit_exons = filt_in_exon(contact[1], bin_index[chr_name][left_index])
+        left_index, right_index = key_to_index(leg_1_pos, binsize), key_to_index(leg_2_pos, binsize)
+        left_hit_exons = filt_in_exon(leg_1_pos, bin_index[chr_name_1][left_index])
         if left_hit_exons != []:
-            right_hit_exons = filt_in_exon(contact[1], bin_index[chr_name][right_index])
+            right_hit_exons = filt_in_exon(leg_2_pos, bin_index[chr_name_2][right_index])
             left_hit_genes = set([exon[2] for exon in left_hit_exons])
             right_hit_genes = set([exon[2] for exon in right_hit_exons])
             #print(out_names)
             if left_hit_genes.intersection(right_hit_genes) != set():
-                print(contact)
                 result.append(contact)
     sys.stderr.write("block_search searching time: " + str(time.time()-begin_time) + "\n")
     return result
