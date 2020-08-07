@@ -29,7 +29,7 @@ def con_parser(cell_name,*sample_function):
     con = pd.read_table(cell_name,header=None,sep='[,\t]',engine='python')
     if len(sample_function) != 0:
         con = con.sample(sample_function[0])
-    cell = list(zip(con[0],con[1],con[4]))
+    cell = list(zip(con[0], con[1], con[3], con[4]))
     #check parsing time
     sys.stderr.write("con_parser parsing time: " + str(time.time() - time_begin) + "\n")
     return cell
@@ -46,6 +46,10 @@ def bin_parser(file_name, regular="off"):
         return {key:value.values for key,value in grouped if key in regular_chromsome_names}
         #return [bin for bin in bins.values if bin[0] in regular_chromsome_names]
     return {key:value.values for key,value in grouped}
+def size_parser(file_name)-> dict:
+    '''
+    read chromsome size(start, end) from faid file
+    '''
 if __name__ == "main":
     #bed_name = "/share/Data/ychi/genome/hg38_RefSeq.bed"
     bed_name = "hg38_RefSeq.bed"
