@@ -9,3 +9,4 @@ out/
 #eclipse
 .project
 .pydevproject
+.vscode/
