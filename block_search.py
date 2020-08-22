@@ -71,7 +71,7 @@ def bin_to_index(bin, bin_size):
     '''
     return bin[1]//bin_size
 def in_exon(contact:"line", bin_index:dict, binsize:int)->bool:
-    if contact["chr1"] == contact["chr2"]:
+    if contact["chr1"] != contact["chr2"]:
         return False
     left_index, right_index = key_to_index(contact["pos1"], binsize), key_to_index(contact["pos2"], binsize)
     left_hit_exons = filt_in_exon(contact["pos1"], bin_index[contact["chr1"]][left_index])
@@ -87,7 +87,14 @@ def in_exon(contact:"line", bin_index:dict, binsize:int)->bool:
         if right_hit_genes != set():
             print(right_hit_genes,left_hit_genes)
         '''
+        '''
+        if left_hit_genes.intersection(right_hit_genes) != set():
+            #print(contact)
+            print(left_hit_genes.intersection(right_hit_genes) != set())
+        '''
         return left_hit_genes.intersection(right_hit_genes) != set()
+    else:
+        return False
         
 def block_search(bin_index:"dict of list", binsize:int, cell:"dataframe")->"data_frame":
     t0 = time.time()
@@ -108,7 +115,7 @@ def block_search(bin_index:"dict of list", binsize:int, cell:"dataframe")->"data
             if left_hit_genes.intersection(right_hit_genes) != set():
                 result.append(contact)
     '''
-    
+    '''
     #iterate using .pairs, for debug
     result = []
     for index, contact in cell.iterrows():
@@ -126,15 +133,13 @@ def block_search(bin_index:"dict of list", binsize:int, cell:"dataframe")->"data
             if left_hit_genes.intersection(right_hit_genes) != set():
                 result.append(contact)
     return result
-    
     '''
+    
     #vectorize using .pairs, target form
     mask = cell.apply(in_exon, axis=1, bin_index=bin_index, binsize=binsize)
-    print(mask)
-    '''
-    '''
+    #print(mask)
+    #print(cell[mask])
     cleaned_contacts = cell[~mask]
     sys.stderr.write("block_search searching time: %.2fs\n" % (time.time()-t0))
     return cleaned_contacts
-    '''
     
