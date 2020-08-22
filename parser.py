@@ -33,6 +33,13 @@ def con_parser(cell_name,*sample_function):
     #check parsing time
     sys.stderr.write("con_parser parsing time: " + str(time.time() - time_begin) + "\n")
     return cell
+def pairs_parser(cell_name):
+    t0 = time.time()
+    column_names = "readID chr1 pos1 chr2 pos2 strand1 strand2 phase0 phase1".split()
+    pairs = pd.read_table(cell_name, header=None,skiprows=27)
+    pairs.columns = column_names
+    sys.stderr.write("pairs_parser parsing time: %.2fs\n"%(time.time()-t0))
+    return pairs
 def bin_parser(file_name, regular="off"):
     '''
     read bin.bed file
@@ -57,7 +64,7 @@ if __name__ == "main":
     chromsomes, bed = bed_parser(bed_name)
     print("parsing time: ", time.time()-begin)
     print("chromsomes(with mito etc.):", len(chromsomes))
-    print( "exon number of chr1:", len(chromsomes["chr1"]) )
+    print("exon number of chr1:", len(chromsomes["chr1"]) )
     print("sample entry:", chromsomes['chr1'][0])
 
 

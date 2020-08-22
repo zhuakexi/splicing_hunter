@@ -70,22 +70,25 @@ def bin_to_index(bin, bin_size):
     bin[1] can always been divided exactly by BINSIZE 
     '''
     return bin[1]//bin_size
-def block_search(bin_index, binsize, cell):
-    begin_time = time.time()
-    result = []
-    for contact in cell:
-        chr_name_1, leg_1_pos, chr_name_2, leg_2_pos = contact[0], contact[1], contact[2], contact[3]
-        if chr_name_1 != chr_name_2:
-            continue
-        #search left
-        left_index, right_index = key_to_index(leg_1_pos, binsize), key_to_index(leg_2_pos, binsize)
-        left_hit_exons = filt_in_exon(leg_1_pos, bin_index[chr_name_1][left_index])
-        if left_hit_exons != []:
-            right_hit_exons = filt_in_exon(leg_2_pos, bin_index[chr_name_2][right_index])
-            left_hit_genes = set([exon[2] for exon in left_hit_exons])
-            right_hit_genes = set([exon[2] for exon in right_hit_exons])
-            #print(out_names)
-            if left_hit_genes.intersection(right_hit_genes) != set():
-                result.append(contact)
-    sys.stderr.write("block_search searching time: " + str(time.time()-begin_time) + "\n")
-    return result
+def in_exon(contact:"line", bin_index:dict, binsize:int)->bool:
+    if contact["chr1"] != contact["chr2"]:
+        return False
+    left_index, right_index = key_to_index(contact["pos1"], binsize), key_to_index(contact["pos2"], binsize)
+    left_hit_exons = filt_in_exon(contact["pos1"], bin_index[contact["chr1"]][left_index])
+    if left_hit_exons != []:
+        right_hit_exons = filt_in_exon(contact["pos2"], bin_index[contact["chr2"]][right_index])
+        left_hit_genes = set([exon[2] for exon in left_hit_exons])
+        right_hit_genes = set([exon[2] for exon in right_hit_exons])
+        return left_hit_genes.intersection(right_hit_genes) != set()
+    else:
+        return False
+        
+def block_search(bin_index:"dict of list", binsize:int, cell:"dataframe")->"data_frame":
+    t0 = time.time()
+    #vectorize using .pairs, target form
+    mask = cell.apply(in_exon, axis=1, bin_index=bin_index, binsize=binsize)
+    #print(cell[mask])
+    cleaned_contacts = cell[~mask]
+    sys.stderr.write("block_search searching time: %.2fs\n" % (time.time()-t0))
+    return cleaned_contacts
+    
