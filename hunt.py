@@ -12,6 +12,11 @@ def clean_splicing_main(index_name, binsize, cell_name):
         bin_index = pickle.load(f)
     return block_search(bin_index, BINSIZE, cell)
 if __name__ == "__main__":
+    '''
+    usage:
+    python3 hunt.py index_file binsize cell_name
+    print cleaned dataframe; change block_search to get hit contacts.
+    '''
     BINSIZE = 10000
 
     index_name = sys.argv[1]

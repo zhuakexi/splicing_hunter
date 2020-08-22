@@ -77,67 +77,16 @@ def in_exon(contact:"line", bin_index:dict, binsize:int)->bool:
     left_hit_exons = filt_in_exon(contact["pos1"], bin_index[contact["chr1"]][left_index])
     if left_hit_exons != []:
         right_hit_exons = filt_in_exon(contact["pos2"], bin_index[contact["chr2"]][right_index])
-        #
-        # print(right_hit_exons)
         left_hit_genes = set([exon[2] for exon in left_hit_exons])
-        #print(left_hit_genes)
         right_hit_genes = set([exon[2] for exon in right_hit_exons])
-        #print(right_hit_genes)
-        '''
-        if right_hit_genes != set():
-            print(right_hit_genes,left_hit_genes)
-        '''
-        '''
-        if left_hit_genes.intersection(right_hit_genes) != set():
-            #print(contact)
-            print(left_hit_genes.intersection(right_hit_genes) != set())
-        '''
         return left_hit_genes.intersection(right_hit_genes) != set()
     else:
         return False
         
 def block_search(bin_index:"dict of list", binsize:int, cell:"dataframe")->"data_frame":
     t0 = time.time()
-    '''
-    #iterate using .con, for check
-    for contact in cell:
-        chr_name_1, leg_1_pos, chr_name_2, leg_2_pos = contact[0], contact[1], contact[2], contact[3]
-        if chr_name_1 != chr_name_2:
-            continue
-        #search left
-        left_index, right_index = key_to_index(leg_1_pos, binsize), key_to_index(leg_2_pos, binsize)
-        left_hit_exons = filt_in_exon(leg_1_pos, bin_index[chr_name_1][left_index])
-        if left_hit_exons != []:
-            right_hit_exons = filt_in_exon(leg_2_pos, bin_index[chr_name_2][right_index])
-            left_hit_genes = set([exon[2] for exon in left_hit_exons])
-            right_hit_genes = set([exon[2] for exon in right_hit_exons])
-            #print(out_names)
-            if left_hit_genes.intersection(right_hit_genes) != set():
-                result.append(contact)
-    '''
-    '''
-    #iterate using .pairs, for debug
-    result = []
-    for index, contact in cell.iterrows():
-        chr_name_1, leg_1_pos, chr_name_2, leg_2_pos = contact["chr1"], contact["pos1"], contact["chr2"], contact["pos2"]
-        if chr_name_1 != chr_name_2:
-            continue
-        #search left
-        left_index, right_index = key_to_index(leg_1_pos, binsize), key_to_index(leg_2_pos, binsize)
-        left_hit_exons = filt_in_exon(leg_1_pos, bin_index[chr_name_1][left_index])
-        if left_hit_exons != []:
-            right_hit_exons = filt_in_exon(leg_2_pos, bin_index[chr_name_2][right_index])
-            left_hit_genes = set([exon[2] for exon in left_hit_exons])
-            right_hit_genes = set([exon[2] for exon in right_hit_exons])
-            #print(out_names)
-            if left_hit_genes.intersection(right_hit_genes) != set():
-                result.append(contact)
-    return result
-    '''
-    
     #vectorize using .pairs, target form
     mask = cell.apply(in_exon, axis=1, bin_index=bin_index, binsize=binsize)
-    #print(mask)
     #print(cell[mask])
     cleaned_contacts = cell[~mask]
     sys.stderr.write("block_search searching time: %.2fs\n" % (time.time()-t0))
